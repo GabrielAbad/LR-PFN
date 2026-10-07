@@ -1,0 +1,13 @@
+\begin{tabular}{r cccccc ccc}
+\toprule
+ & \multicolumn{6}{c}{NLL (nats)} & \multicolumn{3}{c}{KL to teacher-full (nats)}\\
+\cmidrule(lr){2-7}\cmidrule(lr){8-10}
+$|D|$ & GP exact & teacher & teacher & LR-PFN & LR-PFN & no-$z$ & teacher & LR-PFN & no-$z$\\
+ & (full) & full & local & & (3 chunks) & (abl.) & local & & (abl.)\\
+\midrule
+5 & -0.788\,{\scriptsize$\pm$0.002} & -0.724\,{\scriptsize$\pm$0.002} & 0.658\,{\scriptsize$\pm$0.006} & \textbf{-0.698}\,{\scriptsize$\pm$0.003} & -0.506\,{\scriptsize$\pm$0.003} & 0.720\,{\scriptsize$\pm$0.008} & 1.334\,{\scriptsize$\pm$0.005} & \textbf{0.022}\,{\scriptsize$\pm$0.000} & 1.399\,{\scriptsize$\pm$0.007}\\
+10 & -0.788\,{\scriptsize$\pm$0.002} & -0.724\,{\scriptsize$\pm$0.002} & 0.141\,{\scriptsize$\pm$0.006} & \textbf{-0.702}\,{\scriptsize$\pm$0.003} & -0.535\,{\scriptsize$\pm$0.003} & 0.171\,{\scriptsize$\pm$0.007} & 0.830\,{\scriptsize$\pm$0.005} & \textbf{0.020}\,{\scriptsize$\pm$0.000} & 0.864\,{\scriptsize$\pm$0.006}\\
+20 & -0.788\,{\scriptsize$\pm$0.002} & -0.724\,{\scriptsize$\pm$0.002} & -0.349\,{\scriptsize$\pm$0.004} & \textbf{-0.708}\,{\scriptsize$\pm$0.003} & -0.604\,{\scriptsize$\pm$0.003} & -0.345\,{\scriptsize$\pm$0.005} & 0.357\,{\scriptsize$\pm$0.003} & \textbf{0.016}\,{\scriptsize$\pm$0.000} & 0.364\,{\scriptsize$\pm$0.004}\\
+40 & -0.788\,{\scriptsize$\pm$0.002} & -0.724\,{\scriptsize$\pm$0.002} & -0.614\,{\scriptsize$\pm$0.003} & \textbf{-0.714}\,{\scriptsize$\pm$0.002} & -0.664\,{\scriptsize$\pm$0.002} & -0.616\,{\scriptsize$\pm$0.003} & 0.105\,{\scriptsize$\pm$0.001} & \textbf{0.011}\,{\scriptsize$\pm$0.000} & 0.105\,{\scriptsize$\pm$0.001}\\
+\bottomrule
+\end{tabular}

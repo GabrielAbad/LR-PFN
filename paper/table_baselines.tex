@@ -1,0 +1,26 @@
+\begin{tabular}{lcccc}
+\toprule
+\multicolumn{5}{c}{\emph{NLL (nats, lower is better)}}\\
+\midrule
+Method & $N=80$ & $N=160$ & $N=320$ & $N=640$\\
+\midrule
+Teacher (80-pt window) & -0.693\,{\scriptsize$\pm$0.016} & -0.682\,{\scriptsize$\pm$0.015} & -0.697\,{\scriptsize$\pm$0.014} & -0.716\,{\scriptsize$\pm$0.014}\\
+\textbf{LongRange-PFN (bounded)} & -0.678\,{\scriptsize$\pm$0.016} & -0.662\,{\scriptsize$\pm$0.014} & -0.684\,{\scriptsize$\pm$0.014} & -0.702\,{\scriptsize$\pm$0.012}\\
+GP exact (full, oracle) & -0.789\,{\scriptsize$\pm$0.012} & -0.824\,{\scriptsize$\pm$0.011} & -0.859\,{\scriptsize$\pm$0.011} & -0.893\,{\scriptsize$\pm$0.010}\\
+TabPFN (full context) & -0.632\,{\scriptsize$\pm$0.024} & -0.723\,{\scriptsize$\pm$0.020} & -0.782\,{\scriptsize$\pm$0.020} & -0.756\,{\scriptsize$\pm$0.024}\\
+GP-RBF fitted (full) & -0.771\,{\scriptsize$\pm$0.014} & -0.815\,{\scriptsize$\pm$0.011} & -0.856\,{\scriptsize$\pm$0.011} & -0.891\,{\scriptsize$\pm$0.011}\\
+\midrule
+\multicolumn{5}{c}{\emph{RMSE (lower is better)}}\\
+\midrule
+Method & $N=80$ & $N=160$ & $N=320$ & $N=640$\\
+\midrule
+Teacher (80-pt window) & 0.142\,{\scriptsize$\pm$0.008} & 0.154\,{\scriptsize$\pm$0.009} & 0.148\,{\scriptsize$\pm$0.009} & 0.140\,{\scriptsize$\pm$0.008}\\
+\textbf{LongRange-PFN (bounded)} & 0.141\,{\scriptsize$\pm$0.008} & 0.153\,{\scriptsize$\pm$0.008} & 0.147\,{\scriptsize$\pm$0.009} & 0.139\,{\scriptsize$\pm$0.008}\\
+GP exact (full, oracle) & -- & -- & -- & --\\
+TabPFN (full context) & 0.120\,{\scriptsize$\pm$0.004} & 0.106\,{\scriptsize$\pm$0.002} & 0.103\,{\scriptsize$\pm$0.002} & 0.101\,{\scriptsize$\pm$0.002}\\
+GP-RBF fitted (full) & 0.111\,{\scriptsize$\pm$0.002} & 0.106\,{\scriptsize$\pm$0.001} & 0.102\,{\scriptsize$\pm$0.001} & 0.099\,{\scriptsize$\pm$0.001}\\
+Kernel ridge (full) & 0.110\,{\scriptsize$\pm$0.002} & 0.106\,{\scriptsize$\pm$0.001} & 0.102\,{\scriptsize$\pm$0.001} & 0.098\,{\scriptsize$\pm$0.001}\\
+$k$-NN (full) & 0.164\,{\scriptsize$\pm$0.004} & 0.125\,{\scriptsize$\pm$0.002} & 0.113\,{\scriptsize$\pm$0.001} & 0.109\,{\scriptsize$\pm$0.001}\\
+Random forest (full) & 0.142\,{\scriptsize$\pm$0.003} & 0.127\,{\scriptsize$\pm$0.002} & 0.123\,{\scriptsize$\pm$0.001} & 0.121\,{\scriptsize$\pm$0.001}\\
+\bottomrule
+\end{tabular}
