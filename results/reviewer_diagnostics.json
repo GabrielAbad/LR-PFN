@@ -1,0 +1,66 @@
+{
+  "sweep": {
+    "5": {
+      "student_gain_mean": 1.339810167788528,
+      "student_gain_ci95": 0.01213469809781572,
+      "student_gain_winrate": 1.0,
+      "null_z_gain_mean": -0.061858785624148996,
+      "null_z_gain_ci95": 0.005992873859879103,
+      "z_beats_null_winrate": 1.0,
+      "kl_local_mean": 1.3263543844223022,
+      "kl_student_mean": 0.028406988829374313
+    },
+    "10": {
+      "student_gain_mean": 0.842834383371519,
+      "student_gain_ci95": 0.011603100771391567,
+      "student_gain_winrate": 1.0,
+      "null_z_gain_mean": -0.03745801811661522,
+      "null_z_gain_ci95": 0.004650188277536785,
+      "z_beats_null_winrate": 1.0,
+      "kl_local_mean": 0.8369269371032715,
+      "kl_student_mean": 0.02451743558049202
+    },
+    "20": {
+      "student_gain_mean": 0.36368440667565666,
+      "student_gain_ci95": 0.00815484328345883,
+      "student_gain_winrate": 0.99140625,
+      "null_z_gain_mean": -0.0072564370554342615,
+      "null_z_gain_ci95": 0.002390225369299861,
+      "z_beats_null_winrate": 0.987890625,
+      "kl_local_mean": 0.3708479404449463,
+      "kl_student_mean": 0.02031189762055874
+    },
+    "40": {
+      "student_gain_mean": 0.09559347088244188,
+      "student_gain_ci95": 0.0038008072347568106,
+      "student_gain_winrate": 0.864453125,
+      "null_z_gain_mean": 0.001934388189655678,
+      "null_z_gain_ci95": 0.0008926080238942796,
+      "z_beats_null_winrate": 0.845703125,
+      "kl_local_mean": 0.10682135820388794,
+      "kl_student_mean": 0.013444622978568077
+    }
+  },
+  "streaming": {
+    "80": {
+      "student_minus_window_teacher_mean": 0.003977582724764943,
+      "student_minus_window_teacher_ci95": 0.0008708374164476604,
+      "student_beats_window_teacher_winrate": 0.42
+    },
+    "160": {
+      "student_minus_window_teacher_mean": -0.016639557528542355,
+      "student_minus_window_teacher_ci95": 0.0018797883092905678,
+      "student_beats_window_teacher_winrate": 0.683125
+    },
+    "240": {
+      "student_minus_window_teacher_mean": -0.02166219779290259,
+      "student_minus_window_teacher_ci95": 0.0018615932944748177,
+      "student_beats_window_teacher_winrate": 0.71
+    },
+    "320": {
+      "student_minus_window_teacher_mean": -0.02058308642357588,
+      "student_minus_window_teacher_ci95": 0.0019241655134819228,
+      "student_beats_window_teacher_winrate": 0.708125
+    }
+  }
+}
