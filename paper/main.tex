@@ -15,6 +15,7 @@
 \usepackage{xcolor}
 
 \input{results_macros}
+\input{context_selection_macros}
 
 \newcommand{\Dtot}{D_{\mathrm{tot}}}
 \newcommand{\Dfar}{D'}
@@ -64,7 +65,11 @@ Two things do not work yet: multi-chunk summarization stays noticeably
 worse than single-shot even after fixing the model-selection criterion that
 first hid it, consistent with error compounding across recursive steps;
 and bounded-state inference still loses to classical full-context baselines
-on this prior, where exact inference is cheap.
+on this prior, where exact inference is cheap. Against the training-free
+selectors studied by CRUMB, at a matched raw-token budget, the summary is
+closest to the full-context teacher at $n=16$; per-query nearest neighbors
+win at $n=8$; and under a disjoint covariate shift the selectors degrade
+less than a summary that was trained only on exchangeable data.
 \end{abstract}
 
 \section{Introduction}
@@ -120,6 +125,10 @@ recency baseline rather than just matching it (Table~\ref{tab:beyond}).
   \item Validation against the exact posterior (Section~\ref{sec:experiments}):
   on GP priors we compare the whole pipeline to the true PPD, not just to
   the teacher, including a regime where the teacher cannot operate at all.
+  \item A matched-budget comparison with the selectors CRUMB evaluates
+  (uniform subsampling, per-query $k$NN, MICP, and CRUMB itself), wrapped
+  around the same frozen teacher, plus a covariate-shift stress test
+  (Section~\ref{sec:selection}).
 \end{enumerate}
 
 \begin{figure}[t]
@@ -392,6 +401,7 @@ Method & Amortized & Latent & PPD-distilled & Recursive & Beyond window\\
 TuneTables \citep{feuer2024tunetables} & \xmark & \cmark & \xmark & \xmark & \cmark\\
 ICD \citep{ma2024icd} & \xmark & \xmark & \xmark & \xmark & \cmark\\
 LoCalPFN \citep{thomas2024localpfn} & \cmark & \xmark & \xmark & \xmark & \cmark\\
+MICP \citep{xu2024micp} & \cmark & \xmark & \xmark & \xmark & \cmark\\
 CRUMB \citep{heredge2026crumb} & \xmark & \xmark & \xmark & \xmark & \cmark\\
 Gisting / ICAE \citep{mu2023gisting, ge2023icae} & \cmark & \cmark & \xmark & \xmark & \xmark\\
 AutoCompressors \citep{chevalier2023autocompressors} & \cmark & \cmark & \xmark & \cmark & \cmark\\
@@ -409,18 +419,33 @@ pass with no retraining. In-context data distillation \citep{ma2024icd}
 optimizes, per dataset, a small synthetic set of points instead of tokens,
 so the summary lives in data space and again needs no amortization.
 LoCalPFN \citep{thomas2024localpfn} skips compression entirely and
-retrieves real kNN neighbors as context. Closest in goal is CRUMB
-\citep{heredge2026crumb}, which clusters test queries and, for each
-cluster, greedily selects a small training subset that matches its
+retrieves real kNN neighbors as context. MICP \citep{xu2024micp}, the
+retrieval stage of MixturePFN, clusters the training set and routes each
+test point to a shared support so queries can be batched. Closest in goal
+is CRUMB \citep{heredge2026crumb}, which clusters the test queries and, for
+each cluster, greedily selects a training subset that matches its
 distribution by minimizing maximum mean discrepancy, then runs exact PFN
-inference on that reduced batch, no retraining, no new parameters,
-architecture-agnostic. It solves the same context-size problem we do, but
-by picking real points per query batch rather than learning a fixed-size
-latent summary; it has nothing to distill and nothing recursive, so it
-cannot carry state across batches the way $z$ does. None of these methods
-trains an encoder against the KL to a full-context teacher's predictive
-distribution, which is what lets LongRange-PFN transfer calibrated
-uncertainty rather than just point accuracy.
+inference on that reduced batch. CRUMB is training-free and
+architecture-agnostic. It keeps real points rather than a latent, and it
+needs the test batch before it can choose a context, so it carries no
+state from one batch to the next the way $z_t$ does. Section~\ref{sec:selection}
+wraps these four selectors around our teacher at a matched token budget.
+
+A second line changes the architecture instead of the context.
+TabICL and TabICLv2 \citep{qu2025tabicl, qu2026tabiclv2} factor attention
+into a column stage and a row stage so the cost in the number of rows is
+lighter than full self-attention. TabFlex \citep{zeng2025tabflex} replaces
+that attention with a linear-time variant. Chunked TabPFN
+\citep{sergazinov2025chunked} computes exact attention in tiles, so the
+context is not reduced at all. These models still condition on raw tokens.
+They are pretrained tabular foundation models, evaluated on benchmarks such
+as TabArena \citep{erickson2025tabarena}. The summarizer is a different
+object: a latent trained by KL against a longer-context teacher.
+
+None of the selectors or the architectural variants trains an encoder
+against the KL to a full-context teacher's predictive distribution, which
+is what lets LongRange-PFN transfer calibrated uncertainty rather than
+point accuracy alone.
 
 \paragraph{Context compression in language models.} Gisting
 \citep{mu2023gisting} compresses prompts into gist tokens, ICAE
@@ -686,6 +711,142 @@ the full-context ceiling (dashed).}
 \label{fig:diagnostics}
 \end{figure}
 
+\subsection{Context selection at a matched budget}
+\label{sec:selection}
+
+CRUMB \citep{heredge2026crumb} evaluates context selection on TabArena
+\citep{erickson2025tabarena}, with pretrained TabPFNv2, TabICLv1, and
+TabICLv2, and reports accuracy and RMSE. Those checkpoints are tabular
+foundation models. LongRange-PFN is a 1-d GP student distilled from a small
+teacher, so the measurement that speaks to the summary is to run the same
+selectors on that teacher and that prior. We reimplement the four selectors
+from CRUMB's main comparison and wrap them around the frozen teacher.
+Uniform subsampling draws one shared subset. Per-query $k$NN gives every
+test point its own $n$ nearest training points. MICP \citep{xu2024micp}
+clusters the training pool into $\lceil N/n \rceil$ clusters ($\gamma = 1$,
+as in CRUMB's Table~1) and routes each test point to the nearest centroid.
+CRUMB clusters the test set into $K = 8$ groups (their $K = 20$ is for a
+few hundred queries; with $40$ queries, $K = 8$ keeps the same
+cluster-to-query ratio) and fills each group by the greedy MMD step in
+their Equation~(3), with an RBF kernel whose bandwidth is the median
+pairwise distance on the standardized training inputs. Standardization uses
+the training mean and variance, so a shifted test set stays shifted.
+
+Every selector attends $n$ raw tokens. LongRange-PFN attends $n$ raw tokens
+plus the $k = 16$ summary tokens. In the random-window variant the raw
+window is the last $n$ points of the pool, a random subset under the prior,
+and the complement is summarized, in one chunk when it fits and in chunks of
+$70$ otherwise. In the MMD-window variant the raw window is the single
+subset a $K = 1$ CRUMB run would have kept for the whole test set, and the
+complement is summarized. KL to the teacher on the full pool is reported
+only when that pool fits in the teacher's training window.
+
+\begin{table}[t]
+\centering
+\caption{Matched raw-token budget inside the teacher's window
+($N = 80$, $128$ data sets, $40$ queries). Selectors run the frozen
+teacher on $n$ real points. LongRange-PFN adds a summary of the complement.
+NLL is the bar-distribution negative log-likelihood of the held-out targets;
+KL is to the teacher that sees all $80$ points. Bold marks the lowest mean
+among methods that are limited to budget $n$. Mean $\pm$ s.e.}
+\label{tab:selection}
+\resizebox{\textwidth}{!}{\input{table_context_selection}}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../results/context_selection.png}
+\caption{\textbf{Selectors versus the latent summary} (mean $\pm$ 95\% CI).
+Left: inside the window, uniform subsampling stays far above the
+full-context teacher until the budget is large, and the student meets that
+teacher by $n = 16$. Middle: with $N = 320$, per-query $k$NN is the lowest
+curve at both budgets. Right: when the test inputs move to a disjoint half
+of $x$ ($\tau = 1$), the two summary variants degrade past uniform
+subsampling, while $k$NN, MICP, and CRUMB stay together.}
+\label{fig:selection}
+\end{figure}
+
+Table~\ref{tab:selection} and Figure~\ref{fig:selection} (left) cover
+$N = 80$ at budgets $n \in \{8, 16, 40\}$, which are $10\%$, $20\%$, and
+$50\%$ of the pool. Uniform subsampling is far from the teacher at the two
+smaller budgets (KL $\selUniformKlEight$ at $n = 8$, $\selUniformKlSixteen$
+at $n = 16$). At $n = 8$, per-query $k$NN is the closest of the
+budget-matched methods (KL $\selKnnKlEight$). The random-window student
+(KL $\selLrKlEight$) and the MMD-window student (KL $\selLrMmdKlEight$)
+sit between $k$NN and CRUMB (KL $\selCrumbKlEight$); the student has lower
+NLL than CRUMB on $\selWinVsCrumbEight$ of data sets and lower NLL than
+$k$NN on $\selWinVsKnnEight$. At $n = 16$ the order changes. The student's
+KL to the full-context teacher is $\selLrKlSixteen$, against
+$\selKnnKlSixteen$ for $k$NN and $\selCrumbKlSixteen$ for CRUMB, and its
+NLL is lower than $k$NN on $\selWinVsKnnSixteen$ of data sets and lower
+than CRUMB on $\selWinVsCrumbSixteen$. Sixteen raw points plus a summary of
+the other $64$ match the teacher more closely than any selector allowed to
+keep only sixteen real points. At $n = 40$, CRUMB has the smallest KL
+($0.004$) and the test NLL of CRUMB, $k$NN, and both student variants lie
+within one standard error of each other, just under the full teacher. With
+half the pool in the raw window, the summary has less left to add.
+
+\begin{table}[t]
+\centering
+\caption{Past the teacher's window ($N = 320$, $64$ data sets). The teacher
+is not run on all $320$ points. Entries are bar-distribution test NLL.
+Bold is the lowest mean at that budget. Mean $\pm$ s.e.}
+\label{tab:selection-large}
+\input{table_context_selection_large}
+\end{table}
+
+Table~\ref{tab:selection-large} repeats the comparison at $N = 320$, four
+times the training window, where a full-context teacher forward is outside
+the regime the teacher was trained for. At $n = 32$, per-query $k$NN
+reaches $\selLargeKnnNllThirtyTwo$, the MMD-window student
+$\selLargeMmdNllThirtyTwo$, the random-window student
+$\selLargeLrNllThirtyTwo$, and CRUMB $\selLargeCrumbNllThirtyTwo$, all well
+below uniform subsampling ($\selLargeUniformNllThirtyTwo$). At $n = 64$,
+$k$NN ($\selLargeKnnNllSixtyFour$) and CRUMB ($\selLargeCrumbNllSixtyFour$)
+tie, and the student ($\selLargeLrNllSixtyFour$) is about $0.01$ nats
+behind. That budget folds the complement into four or five recursive
+chunks, the regime where each application of $\rep_\phi$ already loses
+information (Figure~\ref{fig:chunks}). A query-aware selection of a
+window-sized raw context is the stronger predictor there.
+
+\begin{table}[t]
+\centering
+\caption{Covariate drift along $x$, budget $n = 32$, training pool drawn
+from the lower half of $x$ and capped at $160$ points ($40$ data sets).
+$\tau = 0$ draws the test window from that same half; $\tau = 1$ draws it
+from the disjoint upper half. Test NLL, mean $\pm$ s.e. Bold is the lowest
+mean in the column.}
+\label{tab:selection-drift}
+\input{table_context_selection_drift}
+\end{table}
+
+Table~\ref{tab:selection-drift} is the shift experiment from CRUMB's
+Section~5.4, run on the GP prior. Points are ranked by $x$. The training
+pool is the lower half. The test window is $[ \tau/2,\, 0.5 + \tau/2 ]$.
+At $\tau = 0$ the MMD-window student is best
+($\selDriftMmdNoDrift$) and the random-window student
+($\selDriftLrNoDrift$) is ahead of $k$NN ($\selDriftKnnNoDrift$) and CRUMB
+($\selDriftCrumbNoDrift$). The complement still lies in the test region, so
+$z$ carries residual evidence the raw window dropped. At $\tau = 1$ every
+method degrades. $k$NN, MICP, and CRUMB land together
+($\selDriftKnnFullDrift$, $\selDriftMicpFullDrift$,
+$\selDriftCrumbFullDrift$). The random-window student rises to
+$\selDriftLrFullDrift$ and the MMD-window student to
+$\selDriftMmdFullDrift$, both worse than uniform subsampling
+($\selDriftUniformFullDrift$). The summary was trained on exchangeable
+draws from one region. On a disjoint test set, $z$ encodes points the
+queries do not resemble, and the student conditions on that state. A
+selector that withholds those points degrades less.
+
+The split is the practical one. With a very small budget, or with a budget
+as large as the window on a long pool, keeping real neighbors wins. With a
+moderate budget and a test distribution that matches the pool, the
+distilled summary of the discarded points wins. When the test distribution
+moves and the summary was trained only on exchangeable data, test-side
+retrieval wins by about a nat. CRUMB still requires the test batch before
+it can build a context, and it keeps no state across batches. The recursive
+summary is what still runs when the stream arrives before the queries.
+
 \section{Limitations}
 \label{sec:limitations}
 
@@ -708,6 +869,9 @@ inference on this prior is already cheap. A real advantage over such
 methods needs a prior where exact inference is intractable and a teacher
 closer to TabPFN's scale, plus query-aware summaries $z(x)$ and the
 associativity regularizer from Section~\ref{sec:recursive}.
+Section~\ref{sec:selection} adds a separate limit: under a disjoint
+covariate shift the summary, trained on exchangeable data, degrades by more
+than the selectors, and pairing it with an MMD window makes that worse.
 
 \section{Conclusion}
 
@@ -717,17 +881,22 @@ predictive distribution. On GP priors, the summary provably carries
 posterior information, it crosses the exact lower bound of
 Proposition~\ref{prop:bound} at every context size tested, and the
 recursive update handles streams four times the training window at
-constant state while beating a strong recency baseline. Two gaps remain:
-multi-chunk summarization lags single-shot quality because our validation
-set never checked it, and bounded-state inference still trails classical
-full-context methods on this easy prior. Both are concrete and measurable,
-which is what the exact-posterior certificate is for.
+constant state while beating a strong recency baseline. At a matched
+raw-token budget the summary is closer to the full-context teacher than
+uniform subsampling, $k$NN, MICP, or CRUMB when $n = 16$; per-query $k$NN
+wins at $n = 8$, and under a disjoint covariate shift the selectors degrade
+less (Section~\ref{sec:selection}). Two further gaps remain: multi-chunk
+summarization still lags single-shot after the validation criterion was
+widened, and bounded-state inference still trails classical full-context
+methods on this easy prior. Both are concrete and measurable, which is
+what the exact-posterior certificate is for.
 
 \section*{Reproducibility statement}
 
 All code (built on the official PFN repository), training scripts, seeds
 and configurations, and the scripts that regenerate every number, table
-and figure in this paper from \texttt{results/metrics.json} are in the
+and figure in this paper from \texttt{results/metrics.json} and
+\texttt{results/context\_selection.json} are in the
 accompanying repository (\texttt{long\_range\_pfn/}, \texttt{paper/}).
 
 \appendix
@@ -1001,6 +1170,41 @@ A.~Malinin, B.~Mlodozeniec, M.~Gales.
 S.~M\"uller, M.~Feurer, N.~Hollmann, F.~Hutter.
 \newblock PFNs4BO: In-Context Learning for Bayesian Optimization.
 \newblock \emph{ICML}, 2023.
+
+\bibitem[Xu et al.(2024)]{xu2024micp}
+D.~Xu, O.~Cirit, R.~Asadi, Y.~Sun, W.~Wang.
+\newblock Mixture of In-Context Prompters for Tabular PFNs.
+\newblock \emph{arXiv:2405.16156}, 2024.
+
+\bibitem[Qu et al.(2025)]{qu2025tabicl}
+J.~Qu, D.~Holzm\"uller, G.~Varoquaux, M.~Le~Morvan.
+\newblock TabICL: A Tabular Foundation Model for In-Context Learning on
+Large Data.
+\newblock \emph{arXiv:2502.05564}, 2025.
+
+\bibitem[Qu et al.(2026)]{qu2026tabiclv2}
+J.~Qu, D.~Holzm\"uller, G.~Varoquaux, M.~Le~Morvan.
+\newblock TabICLv2: A Better, Faster, Scalable, and Open Tabular Foundation
+Model.
+\newblock \emph{arXiv:2602.11139}, 2026.
+
+\bibitem[Zeng et al.(2025)]{zeng2025tabflex}
+Y.~Zeng, T.~Dinh, W.~Kang, A.~C.~Mueller.
+\newblock TabFlex: Scaling Tabular Learning to Millions with Linear
+Attention.
+\newblock \emph{arXiv:2506.05584}, 2025.
+
+\bibitem[Sergazinov and Yin(2025)]{sergazinov2025chunked}
+R.~Sergazinov, S.~Yin.
+\newblock Chunked TabPFN: Exact Training-Free In-Context Learning for
+Long-Context Tabular Data.
+\newblock \emph{arXiv:2509.00326}, 2025.
+
+\bibitem[Erickson et al.(2025)]{erickson2025tabarena}
+N.~Erickson, L.~Purucker, A.~Tschalzev, D.~Holzm\"uller, P.~M.~Desai,
+D.~Salinas, F.~Hutter.
+\newblock TabArena: A Living Benchmark for Machine Learning on Tabular Data.
+\newblock \emph{arXiv:2506.16791}, 2025.
 
 \end{thebibliography}
 

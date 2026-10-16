@@ -1,0 +1,402 @@
+{
+  "protocol": {
+    "n_clusters": 8,
+    "micp_gamma": 1,
+    "chunk": 70,
+    "n_window_datasets": 128,
+    "n_large_datasets": 64,
+    "n_drift_datasets": 40,
+    "note": "Selectors wrap the frozen teacher. LongRange-PFN is the distilled student. KL is to the teacher on the full pool, and is only defined when the pool fits in the teacher window."
+  },
+  "window": {
+    "8": {
+      "teacher_full": {
+        "nll": -0.7197529883123934,
+        "nll_se": 0.01192038479010329,
+        "n_datasets": 128,
+        "kl": 0.0,
+        "kl_se": 0.0
+      },
+      "uniform": {
+        "nll": 0.2987959020829294,
+        "nll_se": 0.02637667313542895,
+        "n_datasets": 128,
+        "kl": 0.965569257736206,
+        "kl_se": 0.023518628994272577
+      },
+      "knn": {
+        "nll": -0.646369542228058,
+        "nll_se": 0.012701686633447649,
+        "n_datasets": 128,
+        "kl": 0.06612331725773402,
+        "kl_se": 0.0023192404612509213
+      },
+      "micp": {
+        "nll": -0.5771189274964854,
+        "nll_se": 0.012278952564572546,
+        "n_datasets": 128,
+        "kl": 0.12617183334077708,
+        "kl_se": 0.0031482963307561825
+      },
+      "crumb": {
+        "nll": -0.5991852032602765,
+        "nll_se": 0.012351233809069348,
+        "n_datasets": 128,
+        "kl": 0.11159140814561397,
+        "kl_se": 0.003307425712642938
+      },
+      "longrange": {
+        "nll": -0.6296274606138468,
+        "nll_se": 0.011860006242674847,
+        "n_datasets": 128,
+        "kl": 0.08742966609133873,
+        "kl_se": 0.0045329587865467705
+      },
+      "longrange_mmd": {
+        "nll": -0.6384012564085424,
+        "nll_se": 0.011959650856973382,
+        "n_datasets": 128,
+        "kl": 0.08338971977354959,
+        "kl_se": 0.005595989405886256
+      },
+      "win_rate_nll": {
+        "teacher_full": 0.078125,
+        "uniform": 1.0,
+        "knn": 0.4375,
+        "micp": 0.7421875,
+        "crumb": 0.65625,
+        "longrange_mmd": 0.40625
+      }
+    },
+    "16": {
+      "teacher_full": {
+        "nll": -0.7197529883123934,
+        "nll_se": 0.01192038479010329,
+        "n_datasets": 128,
+        "kl": 0.0,
+        "kl_se": 0.0
+      },
+      "uniform": {
+        "nll": -0.16760722851904575,
+        "nll_se": 0.025700983569677555,
+        "n_datasets": 128,
+        "kl": 0.5279436453711241,
+        "kl_se": 0.020658825769877882
+      },
+      "knn": {
+        "nll": -0.6852423310047016,
+        "nll_se": 0.01215712166952032,
+        "n_datasets": 128,
+        "kl": 0.029698843711230438,
+        "kl_se": 0.0013708832120972734
+      },
+      "micp": {
+        "nll": -0.6340254993410781,
+        "nll_se": 0.01325865834320746,
+        "n_datasets": 128,
+        "kl": 0.0786941038822988,
+        "kl_se": 0.0043379514414184
+      },
+      "crumb": {
+        "nll": -0.6832753741182387,
+        "nll_se": 0.012394970646787988,
+        "n_datasets": 128,
+        "kl": 0.030876032760716043,
+        "kl_se": 0.001389641598758197
+      },
+      "longrange": {
+        "nll": -0.7063099308870733,
+        "nll_se": 0.012061052180776818,
+        "n_datasets": 128,
+        "kl": 0.01842815262352815,
+        "kl_se": 0.0011434289793666513
+      },
+      "longrange_mmd": {
+        "nll": -0.7033674789126962,
+        "nll_se": 0.011951578395466476,
+        "n_datasets": 128,
+        "kl": 0.01892756090455805,
+        "kl_se": 0.0011727214432022714
+      },
+      "win_rate_nll": {
+        "teacher_full": 0.3203125,
+        "uniform": 1.0,
+        "knn": 0.671875,
+        "micp": 0.8671875,
+        "crumb": 0.703125,
+        "longrange_mmd": 0.515625
+      }
+    },
+    "40": {
+      "teacher_full": {
+        "nll": -0.7197529883123934,
+        "nll_se": 0.01192038479010329,
+        "n_datasets": 128,
+        "kl": 0.0,
+        "kl_se": 0.0
+      },
+      "uniform": {
+        "nll": -0.6188434719806537,
+        "nll_se": 0.012882951020699404,
+        "n_datasets": 128,
+        "kl": 0.09949416157905944,
+        "kl_se": 0.006181528006408383
+      },
+      "knn": {
+        "nll": -0.7078271894715726,
+        "nll_se": 0.012102822981071243,
+        "n_datasets": 128,
+        "kl": 0.00741596173702419,
+        "kl_se": 0.000515703157848407
+      },
+      "micp": {
+        "nll": -0.6898087952286005,
+        "nll_se": 0.011789399185095199,
+        "n_datasets": 128,
+        "kl": 0.021707298310502665,
+        "kl_se": 0.0018220018932156535
+      },
+      "crumb": {
+        "nll": -0.7134280260652304,
+        "nll_se": 0.012099992681340726,
+        "n_datasets": 128,
+        "kl": 0.004264159336344164,
+        "kl_se": 0.00030863640266363767
+      },
+      "longrange": {
+        "nll": -0.7104818301741034,
+        "nll_se": 0.012032843224254972,
+        "n_datasets": 128,
+        "kl": 0.011144779556161666,
+        "kl_se": 0.000655500436461588
+      },
+      "longrange_mmd": {
+        "nll": -0.7105425958288833,
+        "nll_se": 0.012243523781605403,
+        "n_datasets": 128,
+        "kl": 0.011778311602029135,
+        "kl_se": 0.0011234814359134177
+      },
+      "win_rate_nll": {
+        "teacher_full": 0.3984375,
+        "uniform": 0.828125,
+        "knn": 0.5859375,
+        "micp": 0.7421875,
+        "crumb": 0.5234375,
+        "longrange_mmd": 0.5234375
+      }
+    }
+  },
+  "large": {
+    "32": {
+      "uniform": {
+        "nll": -0.5756360454543028,
+        "nll_se": 0.019337986627056995,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "knn": {
+        "nll": -0.7531264587305486,
+        "nll_se": 0.014457335429397382,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "micp": {
+        "nll": -0.7156414745841175,
+        "nll_se": 0.014613534978592177,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "crumb": {
+        "nll": -0.7187922899611294,
+        "nll_se": 0.013863989225274462,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "longrange": {
+        "nll": -0.7320728003978729,
+        "nll_se": 0.01354701346997391,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "longrange_mmd": {
+        "nll": -0.7370893377810717,
+        "nll_se": 0.013236423748643927,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "win_rate_nll": {
+        "uniform": 0.859375,
+        "knn": 0.34375,
+        "micp": 0.578125,
+        "crumb": 0.59375,
+        "longrange_mmd": 0.40625
+      }
+    },
+    "64": {
+      "uniform": {
+        "nll": -0.7080407901667058,
+        "nll_se": 0.016115445263271647,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "knn": {
+        "nll": -0.7752421176992357,
+        "nll_se": 0.01335058362500909,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "micp": {
+        "nll": -0.7427189201116562,
+        "nll_se": 0.013512994355178562,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "crumb": {
+        "nll": -0.7740198811516166,
+        "nll_se": 0.013448286530048398,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "longrange": {
+        "nll": -0.7617872636765242,
+        "nll_se": 0.013962590371609776,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "longrange_mmd": {
+        "nll": -0.7590781319886446,
+        "nll_se": 0.0132745182410265,
+        "n_datasets": 64,
+        "kl": null,
+        "kl_se": null
+      },
+      "win_rate_nll": {
+        "uniform": 0.796875,
+        "knn": 0.359375,
+        "micp": 0.703125,
+        "crumb": 0.40625,
+        "longrange_mmd": 0.46875
+      }
+    }
+  },
+  "drift": {
+    "0.0": {
+      "32": {
+        "uniform": {
+          "nll": -0.6546014379709959,
+          "nll_se": 0.02248441361980818,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "knn": {
+          "nll": -0.7094376038759946,
+          "nll_se": 0.023307149343146663,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "micp": {
+          "nll": -0.6791348427534103,
+          "nll_se": 0.023172160316150422,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "crumb": {
+          "nll": -0.7080476626753807,
+          "nll_se": 0.02345604309264525,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "longrange": {
+          "nll": -0.73757781162858,
+          "nll_se": 0.020674730755178627,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "longrange_mmd": {
+          "nll": -0.7492185875773429,
+          "nll_se": 0.020346195713690462,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "win_rate_nll": {
+          "uniform": 0.875,
+          "knn": 0.7,
+          "micp": 0.875,
+          "crumb": 0.7,
+          "longrange_mmd": 0.325
+        }
+      }
+    },
+    "1.0": {
+      "32": {
+        "uniform": {
+          "nll": 1.3232941433787346,
+          "nll_se": 0.0803634299127541,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "knn": {
+          "nll": 1.204291830956936,
+          "nll_se": 0.06640160440112307,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "micp": {
+          "nll": 1.2104905366897583,
+          "nll_se": 0.06483590477439086,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "crumb": {
+          "nll": 1.2256489560008048,
+          "nll_se": 0.07638862719828358,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "longrange": {
+          "nll": 2.5749342225492002,
+          "nll_se": 0.2641535268873195,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "longrange_mmd": {
+          "nll": 2.9558361753821374,
+          "nll_se": 0.288835356790025,
+          "n_datasets": 40,
+          "kl": null,
+          "kl_se": null
+        },
+        "win_rate_nll": {
+          "uniform": 0.25,
+          "knn": 0.275,
+          "micp": 0.275,
+          "crumb": 0.25,
+          "longrange_mmd": 0.6
+        }
+      }
+    }
+  }
+}

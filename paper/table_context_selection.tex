@@ -1,0 +1,14 @@
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{NLL (nats)} & \multicolumn{3}{c}{KL to teacher-full}\\
+Method & $n=8$ & $n=16$ & $n=40$ & $n=8$ & $n=16$ & $n=40$\\
+\midrule
+Teacher, full context & -0.720\,{\scriptsize$\pm$0.012} & -0.720\,{\scriptsize$\pm$0.012} & -0.720\,{\scriptsize$\pm$0.012} & 0.000\,{\scriptsize$\pm$0.000} & 0.000\,{\scriptsize$\pm$0.000} & 0.000\,{\scriptsize$\pm$0.000}\\
+Uniform & 0.299\,{\scriptsize$\pm$0.026} & -0.168\,{\scriptsize$\pm$0.026} & -0.619\,{\scriptsize$\pm$0.013} & 0.966\,{\scriptsize$\pm$0.024} & 0.528\,{\scriptsize$\pm$0.021} & 0.099\,{\scriptsize$\pm$0.006}\\
+Per-query $k$NN & \textbf{-0.646\,{\scriptsize$\pm$0.013}} & -0.685\,{\scriptsize$\pm$0.012} & -0.708\,{\scriptsize$\pm$0.012} & \textbf{0.066\,{\scriptsize$\pm$0.002}} & 0.030\,{\scriptsize$\pm$0.001} & 0.007\,{\scriptsize$\pm$0.001}\\
+MICP & -0.577\,{\scriptsize$\pm$0.012} & -0.634\,{\scriptsize$\pm$0.013} & -0.690\,{\scriptsize$\pm$0.012} & 0.126\,{\scriptsize$\pm$0.003} & 0.079\,{\scriptsize$\pm$0.004} & 0.022\,{\scriptsize$\pm$0.002}\\
+CRUMB & -0.599\,{\scriptsize$\pm$0.012} & -0.683\,{\scriptsize$\pm$0.012} & \textbf{-0.713\,{\scriptsize$\pm$0.012}} & 0.112\,{\scriptsize$\pm$0.003} & 0.031\,{\scriptsize$\pm$0.001} & \textbf{0.004\,{\scriptsize$\pm$0.000}}\\
+LongRange-PFN & -0.630\,{\scriptsize$\pm$0.012} & \textbf{-0.706\,{\scriptsize$\pm$0.012}} & -0.710\,{\scriptsize$\pm$0.012} & 0.087\,{\scriptsize$\pm$0.005} & \textbf{0.018\,{\scriptsize$\pm$0.001}} & 0.011\,{\scriptsize$\pm$0.001}\\
+LongRange-PFN + MMD window & -0.638\,{\scriptsize$\pm$0.012} & -0.703\,{\scriptsize$\pm$0.012} & -0.711\,{\scriptsize$\pm$0.012} & 0.083\,{\scriptsize$\pm$0.006} & 0.019\,{\scriptsize$\pm$0.001} & 0.012\,{\scriptsize$\pm$0.001}\\
+\bottomrule
+\end{tabular}
