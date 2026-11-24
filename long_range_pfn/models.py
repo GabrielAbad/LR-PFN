@@ -28,8 +28,11 @@ from .config import Config
 
 
 def build_teacher(cfg: Config) -> TableTransformer:
+    # One token per sample: pack all input dimensions into a single feature
+    # group so multi-feature TabArena inputs keep the classic PFN layout.
+    fpg = cfg.num_features
     return TableTransformer(
-        encoder=get_linear_x_encoder(cfg.emsize, features_per_group=1),
+        encoder=get_linear_x_encoder(cfg.emsize, features_per_group=fpg),
         y_encoder=get_linear_y_encoder(cfg.emsize),
         ninp=cfg.emsize,
         nhead=cfg.nhead,
@@ -37,7 +40,7 @@ def build_teacher(cfg: Config) -> TableTransformer:
         nlayers=cfg.teacher_layers,
         decoder_dict={"standard": (None, cfg.num_buckets)},
         attention_between_features=False,
-        features_per_group=1,
+        features_per_group=fpg,
         feature_positional_embedding=None,
         batch_first=True,
         seed=cfg.seed,
@@ -96,7 +99,9 @@ class Summarizer(nn.Module):
 
     def __init__(self, cfg: Config):
         super().__init__()
-        self.encoder = get_linear_x_encoder(cfg.emsize, features_per_group=1)
+        self.encoder = get_linear_x_encoder(
+            cfg.emsize, features_per_group=cfg.num_features
+        )
         self.y_encoder = get_linear_y_encoder(cfg.emsize)
         self.latents = nn.Parameter(torch.randn(cfg.num_summary_tokens, cfg.emsize) * 0.02)
         # z <- "#": learned null summary for the D_total == D' case

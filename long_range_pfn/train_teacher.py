@@ -13,7 +13,7 @@ import time
 
 import torch
 
-from .config import Config, pick_device, RESULTS_DIR
+from .config import RESULTS_DIR, config_from_env, pick_device
 from .data import make_borders, make_criterion, sample_prior_batch
 from .models import build_teacher
 
@@ -29,18 +29,14 @@ def make_scheduler(optimizer, warmup_steps: int, total_steps: int):
 
 
 def main():
-    cfg = Config()
-    if os.environ.get("STEPS"):
-        cfg.teacher_steps = int(os.environ["STEPS"])
-    if os.environ.get("LR"):
-        cfg.teacher_lr = float(os.environ["LR"])
+    cfg = config_from_env()
     resume = os.environ.get("RESUME") == "1"
     device = pick_device()
     torch.manual_seed(cfg.seed)
     os.makedirs(RESULTS_DIR, exist_ok=True)
     print(
-        f"device: {device}  steps: {cfg.teacher_steps}  "
-        f"lr: {cfg.teacher_lr}  resume: {resume}"
+        f"device: {device}  features: {cfg.num_features}  "
+        f"steps: {cfg.teacher_steps}  lr: {cfg.teacher_lr}  resume: {resume}"
     )
 
     borders = make_borders(cfg)

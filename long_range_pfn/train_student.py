@@ -20,7 +20,7 @@ import time
 import torch
 import torch.nn.functional as F
 
-from .config import Config, pick_device
+from .config import Config, config_from_env, pick_device
 from .data import sample_prior_batch
 from .models import build_teacher, LongRangePFN
 from .train_teacher import make_scheduler
@@ -111,15 +111,14 @@ def sample_split(cfg: Config) -> tuple[int, int]:
 def main():
     import os
 
-    cfg = Config()
-    if os.environ.get("STEPS"):
-        cfg.student_steps = int(os.environ["STEPS"])
-    if os.environ.get("LR"):
-        cfg.student_lr = float(os.environ["LR"])
+    cfg = config_from_env()
     resume = os.environ.get("RESUME") == "1"
     device = pick_device()
     torch.manual_seed(cfg.seed + 1)
-    print(f"device: {device}  steps: {cfg.student_steps}  lr: {cfg.student_lr}  resume: {resume}")
+    print(
+        f"device: {device}  features: {cfg.num_features}  "
+        f"steps: {cfg.student_steps}  lr: {cfg.student_lr}  resume: {resume}"
+    )
 
     ckpt = torch.load(cfg.teacher_path, map_location=device, weights_only=True)
     teacher = build_teacher(cfg).to(device)

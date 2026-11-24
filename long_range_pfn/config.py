@@ -29,10 +29,12 @@ class Config:
     num_summary_tokens: int = 16
     num_buckets: int = 100
 
-    # prior (1d GP, low noise, short lengthscale so context size matters).
+    # prior (GP; lengthscale short so context size matters).
     # ls=0.1 keeps the teacher within ~0.1 nats of the exact posterior at
     # this model scale; much shorter lengthscales overwhelm both the teacher
-    # and a k-token summary.
+    # and a k-token summary. num_features=1 is the original 1-d PoC;
+    # TabArena regression uses a multi-feature GP with the same one-token-
+    # per-sample backbone (features_per_group = num_features).
     num_features: int = 1
     gp_hyperparameters: dict = field(
         default_factory=lambda: {
@@ -68,3 +70,52 @@ class Config:
     teacher_path: str = os.path.join(RESULTS_DIR, "teacher.pt")
     student_path: str = os.path.join(RESULTS_DIR, "student.pt")
     borders_path: str = os.path.join(RESULTS_DIR, "borders.pt")
+
+    def resolve_checkpoint_paths(self) -> None:
+        """Point checkpoints at feature-specific files when num_features != 1.
+
+        Keeps the original 1-d PoC artifacts untouched while multi-feature
+        TabArena runs write teacher_f{d}.pt / student_f{d}.pt / borders_f{d}.pt.
+        """
+        if self.num_features == 1:
+            return
+        tag = f"f{self.num_features}"
+        self.teacher_path = os.path.join(RESULTS_DIR, f"teacher_{tag}.pt")
+        self.student_path = os.path.join(RESULTS_DIR, f"student_{tag}.pt")
+        self.borders_path = os.path.join(RESULTS_DIR, f"borders_{tag}.pt")
+
+
+def config_from_env() -> Config:
+    """Build a Config, honoring NUM_FEATURES / STEPS / LR overrides."""
+    cfg = Config()
+    if os.environ.get("NUM_FEATURES"):
+        cfg.num_features = int(os.environ["NUM_FEATURES"])
+    if os.environ.get("STEPS"):
+        # Shared override used by both trainers; train_student also reads STEPS.
+        cfg.teacher_steps = int(os.environ["STEPS"])
+        cfg.student_steps = int(os.environ["STEPS"])
+    if os.environ.get("TEACHER_STEPS"):
+        cfg.teacher_steps = int(os.environ["TEACHER_STEPS"])
+    if os.environ.get("STUDENT_STEPS"):
+        cfg.student_steps = int(os.environ["STUDENT_STEPS"])
+    if os.environ.get("LR"):
+        cfg.teacher_lr = float(os.environ["LR"])
+        cfg.student_lr = float(os.environ["LR"])
+    # Isotropic GP lengthscales that work in 1-d are too short in higher-d:
+    # typical pairwise distances grow like sqrt(d), so keep a comparable
+    # correlation length for TabArena-width priors.
+    if cfg.num_features > 1 and "GP_LENGTHSCALE" not in os.environ:
+        # Empirically, ~1.0 keeps context informative in d~8; sqrt(d) scaling
+        # of the 1-d lengthscale (0.1) is still too short for the teacher to
+        # learn above the prior predictive.
+        cfg.gp_hyperparameters = {
+            **cfg.gp_hyperparameters,
+            "lengthscale": 1.0,
+        }
+    if os.environ.get("GP_LENGTHSCALE"):
+        cfg.gp_hyperparameters = {
+            **cfg.gp_hyperparameters,
+            "lengthscale": float(os.environ["GP_LENGTHSCALE"]),
+        }
+    cfg.resolve_checkpoint_paths()
+    return cfg
