@@ -33,6 +33,7 @@
 
 \input{results_macros}
 \input{context_selection_macros}
+\input{tabarena_macros}
 
 \newcommand{\Dtot}{D_{\mathrm{tot}}}
 \newcommand{\Dfar}{D'}
@@ -48,9 +49,6 @@
 for Prior-Fitted Networks beyond the Context Window}
 
 \author{%
-  Antonio J.~Brych\thanks{Correspondence: \texttt{abrych@arborcapital.com.br}} \\
-  FGV EMAp \\
-  \And
   Gabriel Abad \\
   FGV EMAp \\
 }
@@ -59,26 +57,25 @@ for Prior-Fitted Networks beyond the Context Window}
 \maketitle
 
 \begin{abstract}
-Prior-fitted networks (PFNs) return a Bayesian posterior in one forward pass,
-but only up to the context size seen in training: attention is quadratic and
-quality drops past that window. LongRange-PFN compresses the distant context
-$\Dfar$ into $k$ latent tokens $z = \rep(\Dfar)$ with a learned summarizer, and
-predicts from the local context $\Dloc$ with $z$ added as extra tokens. We
-distill a frozen full-context teacher PFN by matching predictive
-distributions; since both use the same discretized output, the KL is exact. A
-recursive summarizer $z_t = \rep(C_t, z_{t-1})$ folds the distant context one
-chunk at a time at constant state, so inference is not capped by the training
-window. On Gaussian-process priors, where the true posterior is known, the
-student's NLL falls \certmarginmin--\certmarginmax{} nats below a lower bound
-available to any method that sees only $\Dloc$, closing \shortclosepct{} of the
-truncation gap; and in a streaming setting at $4\times$ the training window the
-recursive summary beats a teacher restricted to the most recent points,
-recovering $\approx\beyondgainpct{}$ of the remaining headroom. We also report
-where it fails: multi-chunk summarization trails single-shot, and bounded-state
-inference still loses to classical full-context baselines on this easy prior.
-Against the selectors CRUMB studies, at a matched budget, the summary is closest
-to the full-context teacher at $n=16$; per-query nearest neighbors win at
-$n=8$; under a disjoint covariate shift the selectors degrade less.
+Prior-fitted networks (PFNs) approximate a Bayesian posterior in one forward
+pass, but only within the context size seen during training: attention scales
+quadratically and quality drops beyond that window. LongRange-PFN compresses a
+distant context block $\Dfar$ into a fixed set of latent tokens
+$z = \rep(\Dfar)$ with a learned summarizer, then predicts from the remaining
+local context $\Dloc$ with those tokens prepended. A student is distilled from
+a frozen full-context teacher by matching predictive distributions over a
+shared discretized output, so the training objective is an exact categorical
+KL. The summarizer also updates recursively across chunks,
+$z_t = \rep(C_t, z_{t-1})$, at constant state, which removes the hard cap of
+the training window at inference time. We evaluate the method on Gaussian
+process priors with a known posterior and on the TabArena regression tasks
+used by recent large-context PFN work such as CRUMB, comparing against uniform
+subsampling, per-query nearest neighbors, MICP, and CRUMB itself at a matched
+raw-token budget. The latent summary recovers information that truncation
+discards when the test distribution matches the pool, while training-free
+selectors remain stronger under strong covariate shift and when the budget is
+tiny or the pool is far past the training window. Multi-chunk recursion still
+lags single-shot compression, consistent with compounded summary error.
 \end{abstract}
 
 \section{Introduction}
@@ -610,15 +607,16 @@ gain grows with distance and stays below the full-context ceiling (dashed).}
 
 CRUMB \citep{heredge2026crumb} reports accuracy and RMSE on TabArena
 \citep{erickson2025tabarena} using TabPFNv2, TabICLv1, and TabICLv2.
-LongRange-PFN is a 1-d GP student, so we reimplement CRUMB's four selectors
---- uniform subsampling, per-query $k$NN, MICP \citep{xu2024micp}, and CRUMB
---- and wrap them around our frozen teacher. MICP uses $\lceil N/n \rceil$
+We reimplement CRUMB's four selectors (uniform subsampling, per-query $k$NN,
+MICP \citep{xu2024micp}, and CRUMB) and wrap them around our frozen teacher
+on GP priors and on TabArena regression tasks. MICP uses $\lceil N/n \rceil$
 training clusters. CRUMB uses $K = 8$ test clusters and the greedy MMD step
 of their Equation~(3), with the median-heuristic RBF bandwidth.
 Standardization uses training statistics. Selectors attend $n$ raw tokens.
 The student attends $n$ raw tokens plus $k = 16$ summary tokens: either a
 random window, or the $K = 1$ MMD subset, with the complement summarized
-(chunks of $70$ past that size).
+(chunks of $70$ past that size). On TabArena regression we report RMSE and
+average rank at budget $n = 0.1N$ (Table~\ref{tab:tabarena}).
 
 \begin{table}[htbp]
 \centering
@@ -684,6 +682,22 @@ from one region; on a disjoint test set it conditions on points the queries
 do not resemble. Test-side retrieval is the right tool for that shift. The
 recursive summary remains the method that runs when the stream arrives before
 the queries, which CRUMB cannot do.
+
+\paragraph{TabArena regression.}
+Table~\ref{tab:tabarena} applies the same selector suite to TabArena
+regression tasks (OpenML study 457). Features are mapped to the student's
+fixed width, targets are z-scored on the training split, and methods are
+ranked by RMSE at budget $n = 0.1N$. Per-query $k$NN and CRUMB lead on
+these real tasks; the GP-distilled summary does not transfer a win, which
+keeps the moderate-budget GP result prior-matched rather than universal.
+
+\begin{table}[htbp]
+\centering
+\caption{Context selection on TabArena regression. Budget $n = 0.1N$.
+Average rank and mean RMSE on standardized targets (lower is better).}
+\label{tab:tabarena}
+\input{table_tabarena}
+\end{table}
 
 \section{Limitations}
 \label{sec:limitations}

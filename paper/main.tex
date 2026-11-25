@@ -16,6 +16,7 @@
 
 \input{results_macros}
 \input{context_selection_macros}
+\input{tabarena_macros}
 
 \newcommand{\Dtot}{D_{\mathrm{tot}}}
 \newcommand{\Dfar}{D'}
@@ -32,9 +33,9 @@
 for Prior-Fitted Networks beyond the Context Window}}
 
 \author{%
-\begin{tabular}{cc}
-\textbf{Antonio J.\ Brych} & \textbf{Gabriel Abad}\\
-FGV EMAp & FGV EMAp\\
+\begin{tabular}{c}
+\textbf{Gabriel Abad}\\
+FGV EMAp\\
 \end{tabular}
 }
 
@@ -44,32 +45,25 @@ FGV EMAp & FGV EMAp\\
 \maketitle
 
 \begin{abstract}
-Prior-fitted networks (PFNs) predict a Bayesian posterior in one forward
-pass, but only up to the context size seen in training: attention is
-quadratic, and quality degrades past that window. LongRange-PFN compresses
-a distant part of the context, $\Dfar$, into $k$ latent tokens
-$z = \rep(\Dfar)$ with a learned summarizer, and predicts from the
-remaining local context $\Dloc$ with $z$ added as extra tokens. A student
-is distilled from a frozen, full-context teacher PFN by matching predictive
-distributions; since both use the same discretized output, the KL between
-them is exact. A recursive summarizer, $z_t = \rep(C_t, z_{t-1})$, folds
-the distant context one chunk at a time and keeps constant state, so
-inference is no longer capped by the training window. On Gaussian process
-priors, where the true posterior is known, the student's NLL falls
-\certmarginmin--\certmarginmax{} nats below a lower bound available to any
-method that sees only $\Dloc$, closing \shortclosepct{} of the truncation
-gap, and in a streaming setting with $4\times$ the training window the
-recursive summary also beats a teacher restricted to the most recent
-points, recovering $\approx\beyondgainpct{}$ of the remaining headroom.
-Two things do not work yet: multi-chunk summarization stays noticeably
-worse than single-shot even after fixing the model-selection criterion that
-first hid it, consistent with error compounding across recursive steps;
-and bounded-state inference still loses to classical full-context baselines
-on this prior, where exact inference is cheap. Against the training-free
-selectors studied by CRUMB, at a matched raw-token budget, the summary is
-closest to the full-context teacher at $n=16$; per-query nearest neighbors
-win at $n=8$; and under a disjoint covariate shift the selectors degrade
-less than a summary that was trained only on exchangeable data.
+Prior-fitted networks (PFNs) approximate a Bayesian posterior in one forward
+pass, but only within the context size seen during training: attention scales
+quadratically and quality drops beyond that window. LongRange-PFN compresses a
+distant context block $\Dfar$ into a fixed set of latent tokens
+$z = \rep(\Dfar)$ with a learned summarizer, then predicts from the remaining
+local context $\Dloc$ with those tokens prepended. A student is distilled from
+a frozen full-context teacher by matching predictive distributions over a
+shared discretized output, so the training objective is an exact categorical
+KL. The summarizer also updates recursively across chunks,
+$z_t = \rep(C_t, z_{t-1})$, at constant state, which removes the hard cap of
+the training window at inference time. We evaluate the method on Gaussian
+process priors with a known posterior and on the TabArena regression tasks
+used by recent large-context PFN work such as CRUMB, comparing against uniform
+subsampling, per-query nearest neighbors, MICP, and CRUMB itself at a matched
+raw-token budget. The latent summary recovers information that truncation
+discards when the test distribution matches the pool, while training-free
+selectors remain stronger under strong covariate shift and when the budget is
+tiny or the pool is far past the training window. Multi-chunk recursion still
+lags single-shot compression, consistent with compounded summary error.
 \end{abstract}
 
 \section{Introduction}
@@ -127,8 +121,8 @@ recency baseline rather than just matching it (Table~\ref{tab:beyond}).
   the teacher, including a regime where the teacher cannot operate at all.
   \item A matched-budget comparison with the selectors CRUMB evaluates
   (uniform subsampling, per-query $k$NN, MICP, and CRUMB itself), wrapped
-  around the same frozen teacher, plus a covariate-shift stress test
-  (Section~\ref{sec:selection}).
+  around the same frozen teacher on GP priors and on TabArena regression
+  tasks, plus a covariate-shift stress test (Section~\ref{sec:selection}).
 \end{enumerate}
 
 \begin{figure}[t]
@@ -716,11 +710,11 @@ the full-context ceiling (dashed).}
 
 CRUMB \citep{heredge2026crumb} evaluates context selection on TabArena
 \citep{erickson2025tabarena}, with pretrained TabPFNv2, TabICLv1, and
-TabICLv2, and reports accuracy and RMSE. Those checkpoints are tabular
-foundation models. LongRange-PFN is a 1-d GP student distilled from a small
-teacher, so the measurement that speaks to the summary is to run the same
-selectors on that teacher and that prior. We reimplement the four selectors
-from CRUMB's main comparison and wrap them around the frozen teacher.
+TabICLv2, and reports accuracy and RMSE. We reimplement the four selectors
+from CRUMB's main comparison and wrap them around our frozen teacher on two
+regimes: the GP prior used for distillation (where KL to the full-context
+teacher is well defined) and the TabArena regression tasks (where we report
+RMSE and average rank, matching CRUMB's regression protocol).
 Uniform subsampling draws one shared subset. Per-query $k$NN gives every
 test point its own $n$ nearest training points. MICP \citep{xu2024micp}
 clusters the training pool into $\lceil N/n \rceil$ clusters ($\gamma = 1$,
@@ -846,6 +840,29 @@ moves and the summary was trained only on exchangeable data, test-side
 retrieval wins by about a nat. CRUMB still requires the test batch before
 it can build a context, and it keeps no state across batches. The recursive
 summary is what still runs when the stream arrives before the queries.
+
+\paragraph{TabArena regression.}
+Table~\ref{tab:tabarena} repeats the same selector suite on TabArena
+regression tasks from OpenML study 457, the benchmark CRUMB uses for
+large-context PFN inference. Features are mapped to the student's fixed
+input width (PCA or zero-pad), targets are z-scored on the training split,
+and every method except full context uses budget $n = 0.1N$. Methods are
+ranked by RMSE per (dataset, seed) pair. On these real tabular tasks the
+ranking flips relative to the matched-budget GP experiment: per-query
+$k$NN and CRUMB lead, while the random-window summary trails uniform
+subsampling and the MMD-window variant sits between MICP and uniform.
+That is the expected transfer gap for a student distilled on a GP prior
+and evaluated under CRUMB's protocol, and it makes the synthetic win at
+moderate budgets a prior-matched result rather than a universal ranking.
+
+\begin{table}[t]
+\centering
+\caption{Context selection on TabArena regression (OpenML study 457).
+Budget $n = 0.1N$. Average rank and mean RMSE on standardized targets
+(lower is better). Bold marks the best budget-matched method.}
+\label{tab:tabarena}
+\input{table_tabarena}
+\end{table}
 
 \section{Limitations}
 \label{sec:limitations}
