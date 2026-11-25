@@ -7,10 +7,10 @@ per-query kNN, and MICP (the retrieval stage of MixturePFN). All four are
 reimplemented here and wrapped around *our* frozen teacher, on the same GP
 prior LongRange-PFN was distilled on.
 
-This is the comparison that is well-defined for this model. TabArena, the
-benchmark CRUMB reports, is a tabular classification suite for pretrained
-TabPFN / TabICL checkpoints. LongRange-PFN is a 1-d GP regressor; scoring it
-on TabArena would not measure the latent summary.
+Synthetic GP draws are handled here. The matching TabArena regression
+protocol (OpenML study 457, RMSE / average rank) lives in
+``tabarena_benchmark.py`` and uses a multi-feature teacher/student with the
+same one-token-per-sample backbone.
 
 Two LongRange-PFN variants, both attending n raw tokens plus k summary tokens:
 

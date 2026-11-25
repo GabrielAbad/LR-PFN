@@ -83,6 +83,19 @@ python3 -m venv --system-site-packages .venv
 .venv/bin/python -m long_range_pfn.evaluate        # metrics + figures in results/
 ```
 
+## TabArena (CRUMB-style) evaluation
+
+Train a multi-feature teacher/student (same architecture, `features_per_group =
+num_features`), then run the CRUMB selector suite on TabArena regression tasks:
+
+```bash
+NUM_FEATURES=8 TEACHER_STEPS=600 STUDENT_STEPS=1000 python -m long_range_pfn.train_teacher
+NUM_FEATURES=8 TEACHER_STEPS=600 STUDENT_STEPS=1000 python -m long_range_pfn.train_student
+NUM_FEATURES=8 TASK_LIMIT=7 N_SEEDS=3 python -m long_range_pfn.tabarena_benchmark
+```
+
+Outputs: `results/tabarena_context_selection.json`, `paper/table_tabarena.tex`.
+
 ## Evaluation
 
 `evaluate.py` compares, on fresh prior draws with $|D_{\mathrm{tot}}| = 80$ and 40
