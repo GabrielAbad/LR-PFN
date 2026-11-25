@@ -1,0 +1,137 @@
+\documentclass{article}
+
+% ============================================================
+% TEMPLATE DO PROJETO DESENVOLVIDO (ETAPA 2)
+% Adaptado do template oficial do NeurIPS 2026 para uso na disciplina.
+%
+% INSTRUÇÕES PARA OS ALUNOS:
+% - Baixe também o arquivo neurips_2026.sty do template original em:
+%   https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc
+% - LIMITE DE PÁGINAS DESTA ETAPA: tentem manter entre 4 a 6 páginas, sem contar as referências, figuras e tabelas. 
+% - Este documento parte da proposta (Etapa 1): reaproveitem e atualizem
+%   as seções Introduction, Related Work, Data e Methodology conforme o
+%   que de fato foi feito, e acrescentem os resultados obtidos.
+% - Não é necessário anonimizar o documento nem incluir checklist.
+% ============================================================
+
+\usepackage[preprint]{neurips_2026}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\title{Título do Projeto: [substituam pelo título do projeto]}
+
+\author{%
+  Nome do(a) Aluno(a) 1 \\
+  Código do Aluno(a) 1 \\
+  \texttt{aluno1@email.com} \\
+  \And
+  Nome do(a) Aluno(a) 2 \\
+  Código do Aluno(a) 2 \\
+  \texttt{aluno1@email.com} \\
+}
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  Resumo de 4 a 6 linhas: problema, método usado, principais resultados
+  (com números, se possível) e conclusão principal. Diferente do resumo
+  da proposta, este já deve mencionar resultados obtidos. \\
+  O documento pode ser escrito em português ou em inglês — escolham um e mantenham a consistência até o fim. Termos técnicos consagrados na literatura (self-attention, embedding, fine-tuning, dataset, etc.) podem permanecer em inglês mesmo em textos escritos em português; não inventem traduções pouco usuais para eles (evitem, por exemplo, "autoatenção" ou "ajuste fino" quando o termo em inglês é o que todo mundo usa e entende).
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+% Atualizem a introdução da proposta, se necessário. Mantenham a
+% pergunta de pesquisa e os objetivos, ajustando caso o escopo do
+% projeto tenha mudado ao longo do desenvolvimento.
+
+\section{Related Work}
+\label{sec:related}
+% Atualizem a revisão da proposta com trabalhos adicionais encontrados
+% ao longo do desenvolvimento, se houver.
+
+\section{Data}
+\label{sec:data}
+% Descrevam os dados efetivamente usados (podem diferir do que foi
+% planejado na proposta) e o pré-processamento efetivamente aplicado.
+% Se algo mudou em relação à proposta, expliquem por quê.
+
+\section{Methodology}
+\label{sec:method}
+% Descrevam o método/modelo efetivamente implementado. Se ele mudou em
+% relação à proposta, expliquem as razões da mudança.
+
+\section{Experiments}
+\label{sec:exp}
+% O que escrever aqui:
+% - Desenho experimental efetivamente executado.
+% - Baselines usados na comparação.
+% - Métricas de avaliação usadas.
+% - Detalhes de implementação relevantes para reprodutibilidade
+%   (hiperparâmetros, hardware, tempo de treinamento, splits de dados).
+
+\section{Results}
+\label{sec:results}
+% O que escrever aqui:
+% - Apresentem os resultados obtidos de forma objetiva (tabelas, figuras,
+%   gráficos). Ver exemplos de tabela e figura comentados abaixo.
+% - Não interpretem os resultados aqui — isso vai na seção Discussion.
+
+% \begin{table}[h]
+%   \caption{Resultados obtidos no conjunto de teste.}
+%   \label{tab:results}
+%   \centering
+%   \begin{tabular}{lcc}
+%     \toprule
+%     Método & Métrica 1 & Métrica 2 \\
+%     \midrule
+%     Baseline & & \\
+%     Proposto & & \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.7\linewidth]{resultados.pdf}
+%   \caption{Descrição do que a figura mostra e principal conclusão.}
+%   \label{fig:results}
+% \end{figure}
+
+\section{Discussion}
+\label{sec:discussion}
+% O que escrever aqui:
+% - Interpretem os resultados da Seção \ref{sec:results}: o que eles
+%   significam em relação à pergunta de pesquisa?
+% - Comparem com o baseline e com a literatura discutida em Related Work.
+% - Casos de erro/falha interessantes, se houver.
+
+\section{Limitations}
+\label{sec:limitations}
+% O que escrever aqui:
+% - Limitações dos dados, do método ou da avaliação.
+% - O que não foi possível testar por restrições de tempo/recursos.
+% - Ameaças à validade dos resultados (ex.: tamanho da amostra,
+%   generalização, vazamento de dados).
+
+\section{Conclusion}
+\label{sec:conclusion}
+% O que escrever aqui:
+% - Retomem a pergunta de pesquisa e respondam-na com base nos resultados.
+% - Principais conclusões do trabalho, em 3 a 5 frases.
+% - Trabalhos futuros: o que fariam com mais tempo/recursos.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
