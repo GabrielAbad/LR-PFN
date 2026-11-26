@@ -324,13 +324,14 @@ $80$-point window and a $320$-point context, the exact posterior improves
 by $\approx\beyondheadroom{}$ nats, the headroom the streaming experiment
 is measured against.
 
-On TabArena regression tasks from OpenML study 457, the benchmark CRUMB uses for
-large-context PFN inference, features are mapped to the student's fixed
+On TabArena regression tasks from OpenML study 457, the benchmark
+\citet{heredge2026crumb} uses for large-context PFN inference, features are mapped to the student's fixed
 input width (PCA or zero-pad), targets are z-scored on the training split,
 and every method except full context uses budget $n = 0.1N$. Standardization of
 selector inputs uses the training mean and variance, so a shifted test set stays shifted.
 
-The covariate-drift construction follows CRUMB's Section~5.4, run on the GP prior.
+The covariate-drift construction follows Section~5.4 of
+\citet{heredge2026crumb}, run on the GP prior.
 Points are ranked by $x$. The training pool is the lower half, capped at $160$ points.
 The test window is $[ \tau/2,\, 0.5 + \tau/2 ]$: $\tau = 0$ draws the test query
 from that same half; $\tau = 1$ draws it from the disjoint upper half.
@@ -555,11 +556,11 @@ RMSE and average rank, matching CRUMB's regression protocol).
 Uniform subsampling draws one shared subset. Per-query $k$NN gives every
 test point its own $n$ nearest training points. MICP \citep{xu2024micp}
 clusters the training pool into $\lceil N/n \rceil$ clusters ($\gamma = 1$,
-as in CRUMB's Table~1) and routes each test point to the nearest centroid.
+as in Table~1 of \citet{heredge2026crumb}) and routes each test point to the nearest centroid.
 CRUMB clusters the test set into $K = 8$ groups (their $K = 20$ is for a
 few hundred queries; with $40$ queries, $K = 8$ keeps the same
 cluster-to-query ratio) and fills each group by the greedy MMD step in
-their Equation~(3), with an RBF kernel whose bandwidth is the median
+Equation~(3) of \citet{heredge2026crumb}, with an RBF kernel whose bandwidth is the median
 pairwise distance on the standardized training inputs.
 
 Every selector attends $n$ raw tokens. LongRange-PFN attends $n$ raw tokens
@@ -829,8 +830,8 @@ mean in the column.}
 \input{table_context_selection_drift}
 \end{table}
 
-Table~\ref{tab:selection-drift} is the shift experiment from CRUMB's
-Section~5.4, run on the GP prior. At $\tau = 0$ the MMD-window student is best
+Table~\ref{tab:selection-drift} is the shift experiment from Section~5.4 of
+\citet{heredge2026crumb}, run on the GP prior. At $\tau = 0$ the MMD-window student is best
 ($\selDriftMmdNoDrift$) and the random-window student
 ($\selDriftLrNoDrift$) is ahead of $k$NN ($\selDriftKnnNoDrift$) and CRUMB
 ($\selDriftCrumbNoDrift$). The complement still lies in the test region, so
